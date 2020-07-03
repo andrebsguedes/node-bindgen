@@ -202,8 +202,16 @@ impl  JSValue for String {
 
         use crate::sys::napi_get_value_string_utf8;
 
-        let mut chars: [u8; 1024] = [0;1024];
+        let pointer = std::ptr::null_mut();
         let mut size: size_t = 0;
+
+        napi_call_result!(
+            napi_get_value_string_utf8(env.inner(), js_value, pointer as *mut i8, 1024, &mut size)
+        )?;
+
+        println!("size {}", size);
+
+        let mut chars: [u8; 1024] = [0;1024];
 
         napi_call_result!(
             napi_get_value_string_utf8(env.inner(),js_value,chars.as_mut_ptr() as *mut i8,1024,&mut size)
