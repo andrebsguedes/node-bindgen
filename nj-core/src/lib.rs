@@ -29,7 +29,7 @@ pub mod sys {
 }
 
 pub mod future {
-    pub use flv_future_aio::task::spawn;
+    pub use tokio::task::spawn;
 }
 
 pub mod val {
