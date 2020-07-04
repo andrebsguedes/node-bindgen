@@ -209,17 +209,16 @@ impl  JSValue for String {
             napi_get_value_string_utf8(env.inner(), js_value, pointer as *mut i8, 1024, &mut size)
         )?;
 
-        println!("size {}", size);
-
-        let mut chars: [u8; 1024] = [0;1024];
+        let some_vec = vec![0u8; size];
+        let mut boxed_slice = some_vec.into_boxed_slice();
 
         napi_call_result!(
-            napi_get_value_string_utf8(env.inner(),js_value,chars.as_mut_ptr() as *mut i8,1024,&mut size)
+            napi_get_value_string_utf8(env.inner(),js_value,boxed_slice.as_mut_ptr() as *mut i8, size, &mut size)
         )?;
 
-        let my_chars: Vec<u8> = chars[0..size].into();
+        let my_chars: Vec<u8> = boxed_slice[0..size].into();
 
-        String::from_utf8(my_chars).map_err(|err| err.into())
+        Ok(unsafe { String::from_utf8_unchecked(my_chars) })
     }
 
 }
