@@ -197,7 +197,6 @@ impl  JSValue for String {
 
 
     fn convert_to_rust(env: &JsEnv,js_value: napi_value) -> Result<Self,NjError> {
-        let now = std::time::Instant::now();
         env.assert_type(js_value, crate::sys::napi_valuetype_napi_string)?;
 
         use crate::sys::napi_get_value_string_utf8;
@@ -222,7 +221,6 @@ impl  JSValue for String {
         let my_chars: Vec<u8> = boxed_slice[0..writen_size].into();
 
         let result = unsafe { String::from_utf8_unchecked(my_chars) };
-        println!("convert {}", now.elapsed().as_micros());
         Ok(result)
     }
 
