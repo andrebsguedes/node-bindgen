@@ -791,21 +791,21 @@ impl<T: ?Sized> ExtractFromJs for T where T: JSValue {
 }
 
 /// for optional argument
-impl<T: Sized> ExtractFromJs for Option<T> where T: JSValue {
-
-    fn label() -> &'static str {
-        T::label()
-    }
-
-    fn extract(js_cb: &mut JsCallback) -> Result<Self,NjError> {
-
-        if let Some(n_value) = js_cb.remove_napi() {
-            Ok(Some(T::convert_to_rust(js_cb.env(), n_value)?))
-        } else {
-            Ok(None)
-        }
-    }
-}
+// impl<T: Sized> ExtractFromJs for Option<T> where T: JSValue {
+//
+//     fn label() -> &'static str {
+//         T::label()
+//     }
+//
+//     fn extract(js_cb: &mut JsCallback) -> Result<Self,NjError> {
+//
+//         if let Some(n_value) = js_cb.remove_napi() {
+//             Ok(Some(T::convert_to_rust(js_cb.env(), n_value)?))
+//         } else {
+//             Ok(None)
+//         }
+//     }
+// }
 
 impl ExtractFromJs for JsEnv {
 
