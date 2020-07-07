@@ -47,7 +47,7 @@ impl ThreadSafeFunction {
             crate::sys::napi_call_threadsafe_function(
                 self.tf,
                 data_ptr,
-                crate::sys::napi_threadsafe_function_call_mode_napi_tsfn_blocking
+                crate::sys::napi_threadsafe_function_call_mode_napi_tsfn_nonblocking
             )
         )
         
