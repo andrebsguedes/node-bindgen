@@ -25,6 +25,16 @@ fn test(b: i32) -> Result<ArrayBuffer,NjError> {
     Ok(ArrayBuffer::new(json_string))
 }
 
+#[node_bindgen]
+fn test1(array_buffer: ArrayBuffer) -> Result<(), NjError> {
+
+    let vec = array_buffer.into_inner();
+
+    println!("{:?}", vec);
+
+    Ok(())
+}
+
 
 use node_bindgen::core::val::JsEnv;
 use node_bindgen::core::TryIntoJs;

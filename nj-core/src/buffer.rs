@@ -8,6 +8,8 @@ use crate::sys::napi_value;
 use crate::sys::napi_env;
 use crate::val::JsEnv;
 use crate::NjError;
+use crate::convert::JSValue;
+use crate::napi_call_result;
 
 
 /// pass rust byte arry as Node.js ArrayBuffer
@@ -34,6 +36,9 @@ impl ArrayBuffer {
 
     }
 
+    pub fn into_inner(self) -> Vec<u8> {
+        self.data
+    }
 }
 
 impl TryIntoJs for ArrayBuffer {
@@ -69,30 +74,40 @@ impl TryIntoJs for ArrayBuffer {
 }
 
 
-// impl JSValue for ArrayBuffer {
-//
-//     fn convert_to_rust(env: &JsEnv, js_value: napi_value) -> Result<Self, NjError> {
-//
-//         if !env.is_buffer(js_value)? {
-//             return Err(NjError::Other(format!("Type is not a buffer")))
-//         }
-//
-//         use crate::sys::napi_get_buffer_info;
-//
-//         let mut data =  ptr::null_mut();
-//         let mut chars: [u8; 1024] = [0;1024];
-//         let mut size: size_t = 0;
-//
-//         napi_call_result!(
-//             napi_get_buffer_info(env.inner(), js_value, chars.as_mut_ptr() as *mut i8,1024,&mut size)
-//         )?;
-//
-//         let my_chars: Vec<u8> = chars[0..size].into();
-//
-//         String::from_utf8(my_chars).map_err(|err| err.into())
-//     }
-//
-// }
+impl JSValue for ArrayBuffer {
+
+    fn convert_to_rust(env: &JsEnv, js_value: napi_value) -> Result<Self, NjError> {
+
+        if !env.is_buffer(js_value)? {
+            return Err(NjError::Other(format!("Type is not a Buffer")))
+        }
+
+        use crate::sys::napi_get_buffer_info;
+        use libc::size_t;
+
+        let mut buffer: *mut core::ffi::c_void = ptr::null_mut();
+        let buffer_ptr: *mut *mut core::ffi::c_void = &mut buffer;
+        let mut size: size_t = 0;
+
+        napi_call_result!(
+            napi_get_buffer_info(env.inner(), js_value, buffer_ptr, &mut size)
+        )?;
+
+        if size != 0 {
+
+            let boxed_slice = unsafe { Box::from_raw(std::slice::from_raw_parts_mut(*buffer_ptr as *mut u8, size)) };
+
+            let vec_buffer: Vec<u8> = boxed_slice[0..size].into();
+
+            Box::leak(boxed_slice);
+
+            Ok(ArrayBuffer::new(vec_buffer))
+        } else {
+            Ok(ArrayBuffer::new(vec!()))
+        }
+    }
+
+}
 
 use std::fmt;
 use std::fmt::Debug;

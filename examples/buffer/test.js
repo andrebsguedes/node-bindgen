@@ -10,6 +10,11 @@ console.log("received bytes: ",bytes.byteLength);
 let buffer = Buffer.from(bytes);
 assert.deepEqual(JSON.parse(buffer), { a: 'b', b: 5});
 
+let buff = Buffer.from([1, 2, 3, 4])
+
+console.log(buff)
+
+addon.test1(buff);
 
 let record = addon.test2(10);
 assert.equal(record.comment,"array buffer is cool!");
