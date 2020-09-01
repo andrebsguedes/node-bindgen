@@ -73,6 +73,15 @@ impl TryIntoJs for ArrayBuffer {
     }
 }
 
+impl TryIntoJs for Option<ArrayBuffer> {
+    fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value, NjError> {
+        match self {
+            Some(arr) => arr.try_to_js(js_env),
+            None => Ok(js_env.get_null()?)
+        }
+    }
+}
+
 
 impl JSValue for ArrayBuffer {
 
