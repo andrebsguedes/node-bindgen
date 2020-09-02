@@ -43,7 +43,7 @@ impl ArrayBuffer {
 
 impl TryIntoJs for ArrayBuffer {
 
-    fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value,NjError> {
+    fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value, NjError> {
 
         let len = self.data.len();
 
@@ -58,10 +58,10 @@ impl TryIntoJs for ArrayBuffer {
         let data_box_ptr = Box::into_raw(box_data) as *mut core::ffi::c_void;
 
         crate::napi_call_result!(
-            crate::sys::napi_create_external_arraybuffer(
+            crate::sys::napi_create_external_buffer(
                 js_env.inner(),
-                data_buffer as *mut core::ffi::c_void ,
                 len,
+                data_buffer as *mut core::ffi::c_void ,
                 Some(Self::finalize_buffer),
                 data_box_ptr,
                 &mut napi_buffer
