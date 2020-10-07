@@ -4,11 +4,18 @@ let addon = require('./dist');
 const { format } = require('path');
 
 let bytes = addon.test(5);
-console.log("received bytes: ",bytes.byteLength);
+console.log(bytes)
+console.log("received bytes: ",bytes.length);
+
+console.log(bytes.toString())
+
+console.log('Good 1')
 
 // create buffer view from byte array
-let buffer = Buffer.from(bytes);
+let buffer = bytes;
 assert.deepEqual(JSON.parse(buffer), { a: 'b', b: 5});
+
+console.log('Good 2')
 
 let buff = Buffer.from([1, 2, 3, 4])
 

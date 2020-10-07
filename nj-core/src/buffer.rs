@@ -41,29 +41,58 @@ impl ArrayBuffer {
     }
 }
 
+// impl TryIntoJs for ArrayBuffer {
+//
+//     fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value, NjError> {
+//
+//         let len = self.data.len();
+//
+//         let box_data = Box::new(self.data);
+//
+//         let mut napi_buffer = ptr::null_mut();
+//
+//         // get pointer to vec's buffer
+//         let data_buffer = box_data.as_ptr();
+//
+//         // get raw pointer to box, this will be used to reconstruct box
+//         let data_box_ptr = Box::into_raw(box_data) as *mut core::ffi::c_void;
+//
+//         crate::napi_call_result!(
+//             crate::sys::napi_create_external_buffer(
+//                 js_env.inner(),
+//                 len,
+//                 data_buffer as *mut core::ffi::c_void ,
+//                 Some(Self::finalize_buffer),
+//                 data_box_ptr,
+//                 &mut napi_buffer
+//             )
+//         )?;
+//
+//         Ok(napi_buffer)
+//
+//     }
+// }
+
 impl TryIntoJs for ArrayBuffer {
 
     fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value, NjError> {
+        use libc::size_t;
 
         let len = self.data.len();
 
-        let box_data = Box::new(self.data);
+        let mut boxed_slice = self.data.into_boxed_slice();
+
+        let mut buffer: *mut core::ffi::c_void = Box::into_raw(boxed_slice) as *mut core::ffi::c_void;
+        // let buffer_ptr: *mut *mut core::ffi::c_void = &mut buffer;
 
         let mut napi_buffer = ptr::null_mut();
 
-        // get pointer to vec's buffer
-        let data_buffer = box_data.as_ptr();
-
-        // get raw pointer to box, this will be used to reconstruct box
-        let data_box_ptr = Box::into_raw(box_data) as *mut core::ffi::c_void;
-
         crate::napi_call_result!(
-            crate::sys::napi_create_external_buffer(
+            crate::sys::napi_create_buffer_copy(
                 js_env.inner(),
                 len,
-                data_buffer as *mut core::ffi::c_void ,
-                Some(Self::finalize_buffer),
-                data_box_ptr,
+                buffer,
+                ptr::null_mut(),
                 &mut napi_buffer
             )
         )?;
