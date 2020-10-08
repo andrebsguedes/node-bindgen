@@ -82,7 +82,7 @@ impl TryIntoJs for ArrayBuffer {
 
         let mut boxed_slice = self.data.into_boxed_slice();
 
-        let mut buffer: *mut core::ffi::c_void = Box::into_raw(boxed_slice) as *mut core::ffi::c_void;
+        let mut buffer: *mut core::ffi::c_void = boxed_slice.as_mut_ptr() as *mut core::ffi::c_void;
         // let buffer_ptr: *mut *mut core::ffi::c_void = &mut buffer;
 
         let mut napi_buffer = ptr::null_mut();
