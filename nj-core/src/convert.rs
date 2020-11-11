@@ -10,14 +10,14 @@ use crate::napi_call_result;
 /// convert to JS object
 pub trait TryIntoJs {
 
-    fn try_to_js(self,js_env: &JsEnv) -> Result<napi_value,NjError> ;    
-    
+    fn try_to_js(self,js_env: &JsEnv) -> Result<napi_value,NjError> ;
+
 }
 
 impl TryIntoJs for bool {
     fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value,NjError> {
         js_env.create_boolean(self)
-    }   
+    }
 }
 
 impl TryIntoJs for f64 {
@@ -76,7 +76,7 @@ impl TryIntoJs for napi_value {
 
 impl <T>TryIntoJs for Vec<T> where T: TryIntoJs {
     fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value,NjError> {
-        
+
         let array = js_env.create_array_with_len(self.len())?;
         for (i,element) in self.into_iter().enumerate() {
             let js_element = element.try_to_js(js_env)?;
@@ -84,7 +84,16 @@ impl <T>TryIntoJs for Vec<T> where T: TryIntoJs {
         }
 
         Ok(array)
-    }   
+    }
+}
+
+impl <T>TryIntoJs for Option<T> where T: TryIntoJs {
+    fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value,NjError> {
+        match self {
+            Some(this) => this.try_to_js(js_env),
+            None => js_env.get_null()
+        }
+    }
 }
 
 
@@ -124,7 +133,7 @@ impl JSValue for f64 {
 }
 
 impl JSValue for i32 {
-    
+
 
     fn convert_to_rust(env: &JsEnv,js_value: napi_value) -> Result<Self,NjError> {
 
@@ -141,7 +150,7 @@ impl JSValue for i32 {
 }
 
 impl JSValue for u32 {
-    
+
 
     fn convert_to_rust(env: &JsEnv,js_value: napi_value) -> Result<Self,NjError> {
 
@@ -159,7 +168,7 @@ impl JSValue for u32 {
 
 
 impl JSValue for i64 {
-    
+
 
     fn convert_to_rust(env: &JsEnv,js_value: napi_value) -> Result<Self,NjError> {
 
@@ -250,12 +259,12 @@ impl <T> JSValue for Option<T> where T: JSValue {
 impl <T>JSValue for Vec<T> where T: JSValue  {
 
     fn convert_to_rust(env: &JsEnv,js_value: napi_value) -> Result<Self,NjError> {
-    
+
         if !env.is_array(js_value)? {
             return Err(NjError::Other("not array".to_owned()));
         }
-        
-    
+
+
         use crate::sys::napi_get_array_length;
 
         let mut length: u32 = 0;
