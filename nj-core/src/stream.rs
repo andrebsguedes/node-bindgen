@@ -8,7 +8,7 @@ use futures_lite::stream::StreamExt;
 use pin_utils::unsafe_pinned;
 use pin_utils::unsafe_unpinned;
 
-use fluvio_future::task::spawn;
+use crate::worker::runtime::spawn;
 
 use crate::sys::napi_value;
 use crate::val::JsEnv;

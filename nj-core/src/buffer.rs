@@ -69,6 +69,87 @@ impl TryIntoJs for ArrayBuffer {
     }
 }
 
+pub struct Buffer {
+    data: Vec<u8>
+}
+
+impl Debug for Buffer {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("Buffer len: {}", self.data.len()))
+    }
+}
+
+impl Buffer {
+
+    pub fn new(data: Vec<u8>) -> Self {
+        Self { data }
+    }
+
+    pub fn into_inner(self) -> Vec<u8> {
+        self.data
+    }
+}
+
+impl TryIntoJs for Buffer {
+
+    fn try_to_js(self, js_env: &JsEnv) -> Result<napi_value, NjError> {
+        let len = self.data.len();
+
+        let mut boxed_slice = self.data.into_boxed_slice();
+
+        let buffer: *mut core::ffi::c_void = boxed_slice.as_mut_ptr() as *mut core::ffi::c_void;
+
+        let mut napi_buffer = ptr::null_mut();
+
+        crate::napi_call_result!(
+            crate::sys::napi_create_buffer_copy(
+                js_env.inner(),
+                len,
+                buffer,
+                ptr::null_mut(),
+                &mut napi_buffer
+            )
+        )?;
+
+        Ok(napi_buffer)
+
+    }
+}
+
+impl JSValue<'_> for Buffer {
+
+    fn convert_to_rust(env: &JsEnv, js_value: napi_value) -> Result<Self, NjError> {
+
+        if !env.is_buffer(js_value)? {
+            return Err(NjError::Other(format!("Type is not a Buffer")))
+        }
+
+        use crate::sys::napi_get_buffer_info;
+        use libc::size_t;
+
+        let mut buffer: *mut core::ffi::c_void = ptr::null_mut();
+        let buffer_ptr: *mut *mut core::ffi::c_void = &mut buffer;
+        let mut size: size_t = 0;
+
+        crate::napi_call_result!(
+            napi_get_buffer_info(env.inner(), js_value, buffer_ptr, &mut size)
+        )?;
+
+        if size != 0 {
+            let boxed_slice = unsafe { Box::from_raw(std::slice::from_raw_parts_mut(*buffer_ptr as *mut u8, size)) };
+
+            let vec_buffer: Vec<u8> = boxed_slice[0..size].into();
+
+            Box::leak(boxed_slice);
+
+            Ok(Buffer::new(vec_buffer))
+        } else {
+            Ok(Buffer::new(vec!()))
+        }
+    }
+
+}
+
 impl<'a> JSValue<'a> for &'a [u8] {
     fn convert_to_rust(env: &'a JsEnv, js_value: napi_value) -> Result<Self, NjError> {
         // check if this is really buffer
@@ -92,7 +173,7 @@ impl<'a> JSValue<'a> for &'a [u8] {
 /// # Examples
 ///
 /// In this example, JS String is passed as array buffer.  Rust code convert to String and concate with prefix message.
-///  
+///
 /// ```no_run
 /// use node_bindgen::derive::node_bindgen;
 /// use node_bindgen::core::buffer::JSArrayBuffer;

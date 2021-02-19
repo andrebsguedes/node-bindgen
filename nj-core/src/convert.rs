@@ -251,6 +251,26 @@ impl<'a> JSValue<'a> for &'a str {
     }
 }
 
+impl <'a, T> JSValue<'a> for Option<T> where T: JSValue<'a> {
+    fn convert_to_rust(env: &'a JsEnv, js_value: napi_value) -> Result<Self, NjError> {
+        use crate::sys::napi_coerce_to_bool;
+
+        let mut bool_js_value = std::ptr::null_mut();
+
+        napi_call_result!(
+            napi_coerce_to_bool(env.inner(), js_value, &mut bool_js_value)
+        )?;
+
+        let truthy = env.convert_to_rust(bool_js_value)?;
+
+        if truthy {
+            Ok(Some(T::convert_to_rust(env, js_value)?))
+        } else {
+            Ok(None)
+        }
+    }
+}
+
 impl<'a, T> JSValue<'a> for Vec<T>
 where
     T: JSValue<'a>,

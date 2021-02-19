@@ -6,8 +6,6 @@ use log::debug;
 use async_trait::async_trait;
 use futures_lite::Future;
 
-use fluvio_future::task::spawn;
-
 use crate::sys::napi_deferred;
 use crate::sys::napi_value;
 use crate::val::JsEnv;
@@ -18,6 +16,37 @@ use crate::TryIntoJs;
 use crate::IntoJs;
 use crate::assert_napi;
 use crate::ThreadSafeFunction;
+
+use runtime::spawn;
+
+pub mod runtime {
+    use once_cell::sync::Lazy;
+    use futures_lite::Future;
+
+    static RT: Lazy<tokio::runtime::Runtime> = Lazy::new(|| {
+        tokio::runtime::Builder::new()
+            .threaded_scheduler()
+            .enable_all()
+            .build()
+            .unwrap()
+    });
+
+    pub fn spawn<T>(task: T) -> tokio::task::JoinHandle<T::Output>
+    where
+        T: Future + Send + 'static,
+        T::Output: Send + 'static,
+    {
+        match tokio::runtime::Handle::try_current() {
+            Ok(handle) => {
+                handle.spawn(task)
+            }
+            Err(_) => {
+                let handle = RT.handle();
+                handle.spawn(task)
+            }
+        }
+    }
+}
 
 pub struct JsPromiseFuture<F> {
     future: F,

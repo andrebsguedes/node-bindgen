@@ -30,7 +30,7 @@ pub mod sys {
 }
 
 pub mod future {
-    pub use fluvio_future::task::spawn;
+    pub use crate::worker::runtime::spawn;
 }
 
 pub mod val {
@@ -122,5 +122,5 @@ macro_rules! method {
 }
 
 pub fn init_logger() {
-    fluvio_future::subscriber::init_logger();
+    // fluvio_future::subscriber::init_logger();
 }

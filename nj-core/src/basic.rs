@@ -763,22 +763,22 @@ where
 }
 
 /// for optional argument
-impl<'a, T: Sized> ExtractFromJs<'a> for Option<T>
-where
-    T: JSValue<'a>,
-{
-    fn label() -> &'static str {
-        T::label()
-    }
-
-    fn extract(js_cb: &'a mut JsCallback) -> Result<Self, NjError> {
-        if let Some(n_value) = js_cb.remove_napi() {
-            Ok(Some(T::convert_to_rust(js_cb.env(), n_value)?))
-        } else {
-            Ok(None)
-        }
-    }
-}
+// impl<'a, T: Sized> ExtractFromJs<'a> for Option<T>
+// where
+//     T: JSValue<'a>,
+// {
+//     fn label() -> &'static str {
+//         T::label()
+//     }
+//
+//     fn extract(js_cb: &'a mut JsCallback) -> Result<Self, NjError> {
+//         if let Some(n_value) = js_cb.remove_napi() {
+//             Ok(Some(T::convert_to_rust(js_cb.env(), n_value)?))
+//         } else {
+//             Ok(None)
+//         }
+//     }
+// }
 
 impl ExtractFromJs<'_> for JsEnv {
     fn extract(js_cb: &mut JsCallback) -> Result<Self, NjError> {
@@ -816,22 +816,22 @@ where
     }
 }
 
-impl<'a, T: Sized> ExtractArgFromJs<'a> for Option<T>
-where
-    T: JSValue<'a>,
-{
-    fn label() -> &'static str {
-        T::label()
-    }
-
-    fn convert_arg_at(js_cb: &'a JsCallback, index: usize) -> Result<Self, NjError> {
-        if index < js_cb.args.len() {
-            Ok(Some(T::convert_to_rust(js_cb.env(), js_cb.args[index])?))
-        } else {
-            Ok(None)
-        }
-    }
-}
+// impl<'a, T: Sized> ExtractArgFromJs<'a> for Option<T>
+// where
+//     T: JSValue<'a>,
+// {
+//     fn label() -> &'static str {
+//         T::label()
+//     }
+//
+//     fn convert_arg_at(js_cb: &'a JsCallback, index: usize) -> Result<Self, NjError> {
+//         if index < js_cb.args.len() {
+//             Ok(Some(T::convert_to_rust(js_cb.env(), js_cb.args[index])?))
+//         } else {
+//             Ok(None)
+//         }
+//     }
+// }
 
 impl ExtractArgFromJs<'_> for JsEnv {
     fn convert_arg_at(js_cb: &JsCallback, _index: usize) -> Result<Self, NjError> {
