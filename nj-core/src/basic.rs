@@ -13,6 +13,7 @@ use crate::sys::napi_callback_info;
 use crate::sys::napi_callback_raw;
 use crate::sys::napi_finalize_raw;
 use crate::sys::napi_valuetype;
+use crate::sys::napi_get_property_names;
 use crate::sys::napi_get_property;
 use crate::sys::napi_has_property;
 use crate::sys::napi_ref;
@@ -958,6 +959,17 @@ impl JsObject {
 
     pub fn napi_value(&self) -> napi_value {
         self.napi_value
+    }
+
+    pub fn get_property_names(&self) -> Result<Vec<String>, NjError> {
+        let mut result = ptr::null_mut();
+        napi_call_result!(napi_get_property_names(
+            self.env.inner(),
+            self.napi_value,
+            &mut result
+        ))?;
+
+        Ok(self.env.convert_to_rust::<Vec<String>>(result)?)
     }
 
     /// get property
