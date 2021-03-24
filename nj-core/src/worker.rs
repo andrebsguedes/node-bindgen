@@ -24,8 +24,7 @@ pub mod runtime {
     use futures_lite::Future;
 
     static RT: Lazy<tokio::runtime::Runtime> = Lazy::new(|| {
-        tokio::runtime::Builder::new()
-            .threaded_scheduler()
+        tokio::runtime::Builder::new_multi_thread()
             .enable_all()
             .build()
             .unwrap()

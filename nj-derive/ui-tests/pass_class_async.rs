@@ -1,7 +1,7 @@
 use std::time::Duration;
 use std::io::Error as IoError;
 
-use fluvio_future::timer::sleep;
+use tokio::time::sleep;
 
 use node_bindgen::derive::node_bindgen;
 
