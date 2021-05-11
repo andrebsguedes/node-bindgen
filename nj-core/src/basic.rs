@@ -940,7 +940,7 @@ pub struct JsObject {
     napi_value: napi_value,
 }
 
-impl std::fmt::Debug for JsPrefetchSender {
+impl std::fmt::Debug for JsObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("JsObject")
     }
