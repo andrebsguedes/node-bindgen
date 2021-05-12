@@ -122,5 +122,5 @@ macro_rules! method {
 }
 
 pub fn init_logger() {
-    // fluvio_future::subscriber::init_logger();
+    pretty_env_logger::init();
 }
