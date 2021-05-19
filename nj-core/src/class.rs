@@ -46,15 +46,6 @@ where
             rust_ref.wrapper = wrap;
         }
 
-        // Finally, remove the reference in response to finalize callback
-        // See footnote on `napi_wrap` documentation: https://nodejs.org/api/n-api.html#n_api_napi_wrap
-        //
-        // "Caution: The optional returned reference (if obtained) should be deleted via napi_delete_reference
-        // ONLY in response to the finalize callback invocation. If it is deleted before then,
-        // then the finalize callback may never be invoked. Therefore, when obtaining a reference a
-        // finalize callback is also required in order to enable correct disposal of the reference."
-        js_env.delete_reference(wrap)?;
-
         Ok(js_cb.this_owned())
     }
 }
@@ -151,14 +142,23 @@ pub trait JSClass: Sized {
     */
 
     extern "C" fn js_finalize(
-        _env: napi_env,
+        env: napi_env,
         finalize_data: *mut ::std::os::raw::c_void,
         _finalize_hint: *mut ::std::os::raw::c_void,
     ) {
         debug!("my object finalize");
-        unsafe {
+        let boxed = unsafe {
             let ptr: *mut JSObjectWrapper<Self> = finalize_data as *mut JSObjectWrapper<Self>;
-            Box::from_raw(ptr);
-        }
+            Box::from_raw(ptr)
+        };
+        // Finally, remove the reference in response to finalize callback
+        // See footnote on `napi_wrap` documentation: https://nodejs.org/api/n-api.html#n_api_napi_wrap
+        //
+        // "Caution: The optional returned reference (if obtained) should be deleted via napi_delete_reference
+        // ONLY in response to the finalize callback invocation. If it is deleted before then,
+        // then the finalize callback may never be invoked. Therefore, when obtaining a reference a
+        // finalize callback is also required in order to enable correct disposal of the reference."
+        let js_env = JsEnv::new(env);
+        js_env.delete_reference(boxed.wrapper).expect("failed to delete ref");
     }
 }
