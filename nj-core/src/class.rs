@@ -26,6 +26,14 @@ impl<T> JSObjectWrapper<T> {
     pub fn inner(&self) -> &T {
         &self.inner
     }
+
+    pub fn wrapper_ref(&self, env: &JsEnv) -> Result<u32, NjError> {
+        env.reference_ref(self.wrapper)
+    }
+
+    pub fn wrapper_unref(&self, env: &JsEnv) -> Result<u32, NjError> {
+        env.reference_unref(self.wrapper)
+    }
 }
 
 impl<T> JSObjectWrapper<T>
@@ -79,6 +87,14 @@ pub trait JSClass: Sized {
 
     fn unwrap(js_env: &JsEnv, instance: napi_value) -> Result<&'static Self, NjError> {
         Ok(js_env.unwrap::<JSObjectWrapper<Self>>(instance)?.inner())
+    }
+
+    fn instance_ref<T: 'static>(js_env: &JsEnv, instance: napi_value) -> Result<u32, NjError> {
+        Ok(js_env.unwrap::<JSObjectWrapper<T>>(instance)?.wrapper_ref(js_env)?)
+    }
+
+    fn instance_unref<T: 'static>(js_env: &JsEnv, instance: napi_value) -> Result<u32, NjError> {
+        Ok(js_env.unwrap::<JSObjectWrapper<T>>(instance)?.wrapper_unref(js_env)?)
     }
 
     fn properties() -> PropertiesBuilder {

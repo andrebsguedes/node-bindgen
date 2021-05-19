@@ -325,6 +325,26 @@ impl JsEnv {
         ))?)
     }
 
+    pub fn reference_ref(&self, ref_: napi_ref) -> Result<u32, NjError> {
+        let mut result: u32 = 0;
+        napi_call_result!(crate::sys::napi_reference_ref(
+            self.0,
+            ref_,
+            &mut result
+        ))?;
+        Ok(result)
+    }
+
+    pub fn reference_unref(&self, ref_: napi_ref) -> Result<u32, NjError> {
+        let mut result: u32 = 0;
+        napi_call_result!(crate::sys::napi_reference_unref(
+            self.0,
+            ref_,
+            &mut result
+        ))?;
+        Ok(result)
+    }
+
     pub fn get_new_target(&self, info: napi_callback_info) -> Result<napi_value, NjError> {
         let mut result = ptr::null_mut();
         napi_call_result!(crate::sys::napi_get_new_target(self.0, info, &mut result))?;
