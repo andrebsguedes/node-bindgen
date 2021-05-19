@@ -454,7 +454,7 @@ impl JsEnv {
             js_func.unwrap_or(ptr::null_mut()),
             ptr::null_mut(),
             work_name,
-            8 * 1024,
+            0,
             1,
             ptr::null_mut(),
             None,
