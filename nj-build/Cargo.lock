@@ -447,8 +447,7 @@ dependencies = [
 name = "nj-build"
 version = "0.2.1"
 dependencies = [
- "cc",
- "reqwest",
+ "cc"
 ]
 
 [[package]]
@@ -622,41 +621,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3acd125665422973a33ac9d3dd2df85edad0f4ae9b00dafb1a05e43a9f5ef8e7"
 dependencies = [
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "reqwest"
-version = "0.10.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12427a5577082c24419c9c417db35cfeb65962efc7675bb6b0d5f1f9d315bfe6"
-dependencies = [
- "base64",
- "bytes",
- "encoding_rs",
- "futures-core",
- "futures-util",
- "http",
- "http-body",
- "hyper",
- "hyper-tls",
- "ipnet",
- "js-sys",
- "lazy_static",
- "log",
- "mime",
- "mime_guess",
- "native-tls",
- "percent-encoding",
- "pin-project-lite",
- "serde",
- "serde_urlencoded",
- "tokio",
- "tokio-tls",
- "url",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
- "winreg",
 ]
 
 [[package]]
